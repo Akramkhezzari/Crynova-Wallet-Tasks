@@ -58,7 +58,6 @@
       overflow: hidden;
       position: relative;
       min-height: 100vh;
-      padding-bottom: 80px;
     }
 
     /* ========== رأس الصفحة ========== */
@@ -364,126 +363,6 @@
       color: var(--text-light);
     }
 
-    /* ========== الشريط السفلي الثابت ========== */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #ffffff;
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(0, 0, 0, 0.08);
-      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0;
-      z-index: 1000;
-      gap: 5px;
-      max-width: 800px;
-      margin: 0 auto;
-      border-radius: 25px 25px 0 0;
-      border-left: 1px solid rgba(0, 0, 0, 0.05);
-      border-right: 1px solid rgba(0, 0, 0, 0.05);
-      height: 60px;
-    }
-
-    .bottom-nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 8px;
-      border-radius: 16px;
-      cursor: pointer;
-      text-decoration: none;
-      min-width: 70px;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-      background: transparent;
-      height: 52px;
-    }
-
-    .bottom-nav-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(0, 114, 255, 0.05), rgba(255, 45, 158, 0.05));
-      border-radius: 16px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .bottom-nav-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 114, 255, 0.1);
-    }
-
-    .bottom-nav-item.active {
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 6px 15px rgba(0, 114, 255, 0.15);
-      transform: translateY(-3px);
-      border: 1px solid rgba(0, 114, 255, 0.1);
-    }
-
-    .bottom-nav-item.active::before {
-      opacity: 0.5;
-    }
-
-    .bottom-nav-text {
-      font-size: 12px;
-      font-weight: 600;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-      transition: all 0.3s ease;
-      letter-spacing: 0.3px;
-      background: linear-gradient(90deg, #0072ff, #ff2d9e);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-top: 2px;
-    }
-
-    .bottom-nav-item:hover .bottom-nav-text {
-      font-weight: 700;
-      background: linear-gradient(90deg, #0052cc, #e61e8a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .bottom-nav-item.active .bottom-nav-text {
-      font-weight: 800;
-      font-size: 13px;
-      background: linear-gradient(90deg, #0052cc, #e61e8a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 2px 4px rgba(0, 82, 204, 0.1);
-    }
-
-    .nav-icon {
-      font-size: 18px;
-      margin-bottom: 2px;
-      position: relative;
-      z-index: 1;
-      background: linear-gradient(90deg, #0072ff, #ff2d9e);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .bottom-nav-item.active .nav-icon {
-      background: linear-gradient(90deg, #0052cc, #e61e8a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
     /* ========== التحميل والتوجيهات ========== */
     .loading-spinner {
       position: fixed;
@@ -560,30 +439,6 @@
       .achievements-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-      
-      .bottom-nav {
-        padding: 6px 0;
-        height: 56px;
-      }
-      
-      .bottom-nav-item {
-        padding: 5px 6px;
-        min-width: 60px;
-        height: 48px;
-        border-radius: 14px;
-      }
-      
-      .bottom-nav-text {
-        font-size: 10px;
-      }
-      
-      .nav-icon {
-        font-size: 16px;
-      }
-      
-      .bottom-nav-item.active .bottom-nav-text {
-        font-size: 11px;
-      }
     }
   </style>
 </head>
@@ -650,29 +505,6 @@
       </div>
       
     </div>
-  </div>
-
-  <!-- ========== الشريط السفلي الثابت ========== -->
-  <div class="bottom-nav" id="bottomNav">
-    <a href="https://akramkhezzari.github.io/Crynova-Wallet/" class="bottom-nav-item">
-      <div class="nav-icon">🏠</div>
-      <div class="bottom-nav-text">الرئيسية</div>
-    </a>
-    
-    <div class="bottom-nav-item active" data-page="tasks">
-      <div class="nav-icon">✅</div>
-      <div class="bottom-nav-text">المهام</div>
-    </div>
-    
-    <a href="https://akramkhezzari.github.io/Crynova-Wallet-Referrals/" class="bottom-nav-item">
-      <div class="nav-icon">👥</div>
-      <div class="bottom-nav-text">الإحالات</div>
-    </a>
-    
-    <a href="https://akramkhezzari.github.io/Crynova-Wallet-Visa/" class="bottom-nav-item">
-      <div class="nav-icon">💳</div>
-      <div class="bottom-nav-text">Visa</div>
-    </a>
   </div>
 
   <!-- ========== نافذة التحميل ========== -->
@@ -1312,20 +1144,6 @@
       
       // تهيئة Telegram WebApp
       initializeTelegramWebApp();
-      
-      // تحديث الشريط السفلي
-      document.querySelectorAll('.bottom-nav-item').forEach(item => {
-        if (!item.hasAttribute('href')) {
-          item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const page = this.getAttribute('data-page');
-            if (page === 'tasks') {
-              // نحن بالفعل في صفحة المهام
-              this.classList.add('active');
-            }
-          });
-        }
-      });
       
       // تحميل الصفحة بعد 2 ثانية للتأكد من تهيئة البيانات
       setTimeout(() => {
