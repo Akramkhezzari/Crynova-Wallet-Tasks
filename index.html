@@ -64,7 +64,7 @@
     .page-header {
       background: linear-gradient(135deg, var(--accent), var(--primary));
       color: white;
-      padding: 25px 15px 20px;
+      padding: 35px 15px 30px;   /* تم زيادة الارتفاع هنا */
       text-align: center;
       position: relative;
       width: 100%;
@@ -72,15 +72,15 @@
     }
 
     .page-header h1 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;         /* زيادة طفيفة في حجم الخط لتتناسب مع الارتفاع */
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       margin-top: 0;
     }
 
     .page-header p {
       opacity: 0.9;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       margin-bottom: 0;
     }
 
@@ -92,10 +92,10 @@
       background: rgba(255, 255, 255, 0.2);
       border: none;
       color: white;
-      width: 36px;
-      height: 36px;
+      width: 40px;              /* زيادة طفيفة لعرض الزر */
+      height: 40px;
       border-radius: 50%;
-      font-size: 24px;
+      font-size: 28px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -429,11 +429,11 @@
     /* ========== تجاوبية للشاشات الصغيرة ========== */
     @media (max-width: 480px) {
       .page-header {
-        padding: 20px 15px 15px;
+        padding: 30px 15px 25px;  /* تعديل طفيف للهواتف */
       }
       
       .page-header h1 {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
       }
       
       .achievements-grid {
