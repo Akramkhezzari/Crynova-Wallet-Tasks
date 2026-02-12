@@ -484,7 +484,7 @@
         id: 'daily_login',
         title: 'تسجيل الدخول اليومي',
         description: 'سجل دخولك اليومي لتحصل على مكافآتك',
-        reward: 10,
+        reward: 0.50,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 1 },
         status: 'pending',
@@ -495,7 +495,7 @@
         id: 'interact_channel',
         title: 'تفاعل مع اخر منشور في القناة',
         description: 'تفاعل مع آخر منشور في قناة Crynova الرسمية على Telegram',
-        reward: 5,
+        reward: 0.25,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 1 },
         status: 'pending',
@@ -506,7 +506,7 @@
         id: 'join_channel',
         title: 'الانضمام للقناة',
         description: 'انضم لقناة Crynova الرسمية على Telegram',
-        reward: 20,
+        reward: 0.30,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 1 },
         status: 'pending',
@@ -517,7 +517,7 @@
         id: 'send_transaction',
         title: 'إرسال معاملة',
         description: 'أرسل أي مبلغ إلى مستخدم آخر',
-        reward: 25,
+        reward: 0.27,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 1 },
         status: 'pending',
@@ -531,7 +531,7 @@
         id: 'complete_5_daily',
         title: 'إكمال 5 مهام يومية',
         description: 'أكمل 5 مهام يومية مختلفة خلال الأسبوع',
-        reward: 50,
+        reward: 0.90,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 5 },
         status: 'pending',
@@ -542,7 +542,7 @@
         id: 'invite_3_friends',
         title: 'دعوة 3 أصدقاء',
         description: 'دعوة 3 أصدقاء للانضمام إلى Crynova',
-        reward: 100,
+        reward: 1,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 3 },
         status: 'pending',
@@ -550,14 +550,25 @@
         icon: 'fas fa-user-friends'
       },
       {
-        id: 'invite_7_friends',        // تم تغيير المهمة من تداول بقيمة 100 USDT إلى دعوة 7 أصدقاء
+        id: 'invite_7_friends',
         title: 'دعوة 7 أصدقاء',
         description: 'دعوة 7 أصدقاء للانضمام إلى Crynova',
-        reward: 75,
+        reward: 2.4,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 7 },
         status: 'pending',
         action: 'invite_7_friends',
+        icon: 'fas fa-user-friends'
+      },
+      {
+        id: 'invite_15_friends',
+        title: 'دعوة 15 صديق',
+        description: 'دعوة 15 صديق للانضمام إلى Crynova',
+        reward: 5,
+        rewardCurrency: 'CNC',
+        progress: { current: 0, target: 15 },
+        status: 'pending',
+        action: 'invite_15_friends',
         icon: 'fas fa-user-friends'
       }
     ];
@@ -710,6 +721,28 @@
         return;
       }
       
+      // إذا كنا نعرض المهام الأسبوعية، نقوم بحساب تقدم مهمة "إكمال 5 مهام يومية"
+      if (containerId === 'weeklyTasksList') {
+        const weeklyTask = tasks.find(t => t.id === 'complete_5_daily');
+        if (weeklyTask) {
+          // حساب عدد المهام اليومية المكتملة (حالة completed أو claimed)
+          const completedDailyCount = userTasks.dailyTasks.filter(t => 
+            t.status === 'completed' || t.status === 'claimed'
+          ).length;
+          
+          weeklyTask.progress.current = completedDailyCount;
+          
+          // إذا تم الوصول للهدف ولم تكن المهمة مطالب بها، نغير الحالة إلى completed
+          if (completedDailyCount >= weeklyTask.progress.target && weeklyTask.status !== 'claimed') {
+            weeklyTask.status = 'completed';
+          } 
+          // إذا لم يتم الوصول للهدف، نضمن أن الحالة pending (وليس in-progress)
+          else if (completedDailyCount < weeklyTask.progress.target) {
+            weeklyTask.status = 'pending';
+          }
+        }
+      }
+      
       tasks.forEach(task => {
         const taskElement = document.createElement('div');
         taskElement.className = `task-item ${task.status === 'completed' ? 'completed' : ''}`;
@@ -736,34 +769,59 @@
             break;
         }
         
-        if (task.status === 'completed') {
-          actionButton = `<button class="task-action-btn claim" onclick="claimReward('${task.id}')">
-            <i class="fas fa-gift"></i>
-            المطالبة
-          </button>`;
-        } else if (task.status === 'in-progress') {
-          actionButton = `<button class="task-action-btn start" onclick="startTask('${task.id}')">
-            <i class="fas fa-play"></i>
-            بدء المهمة
-          </button>`;
-        } else if (task.status === 'claimed') {
-          actionButton = `<button class="task-action-btn" disabled>
-            <i class="fas fa-check-circle"></i>
-            مطالب به
-          </button>`;
+        // معالجة خاصة لمهمة إكمال 5 مهام يومية
+        if (task.id === 'complete_5_daily') {
+          if (task.status === 'completed') {
+            actionButton = `<button class="task-action-btn claim" onclick="claimReward('${task.id}')">
+              <i class="fas fa-gift"></i>
+              المطالبة
+            </button>`;
+          } else if (task.status === 'claimed') {
+            actionButton = `<button class="task-action-btn" disabled>
+              <i class="fas fa-check-circle"></i>
+              مطالب به
+            </button>`;
+          } else {
+            // pending - زر معطل مع أيقونة قفل
+            actionButton = `<button class="task-action-btn" disabled>
+              <i class="fas fa-lock"></i>
+              مقفلة
+            </button>`;
+          }
         } else {
-          actionButton = `<button class="task-action-btn start" onclick="startTask('${task.id}')" disabled>
-            <i class="fas fa-lock"></i>
-            مقفلة
-          </button>`;
+          // باقي المهام تعمل بشكل طبيعي
+          if (task.status === 'completed') {
+            actionButton = `<button class="task-action-btn claim" onclick="claimReward('${task.id}')">
+              <i class="fas fa-gift"></i>
+              المطالبة
+            </button>`;
+          } else if (task.status === 'in-progress') {
+            actionButton = `<button class="task-action-btn start" onclick="startTask('${task.id}')">
+              <i class="fas fa-play"></i>
+              بدء المهمة
+            </button>`;
+          } else if (task.status === 'claimed') {
+            actionButton = `<button class="task-action-btn" disabled>
+              <i class="fas fa-check-circle"></i>
+              مطالب به
+            </button>`;
+          } else {
+            actionButton = `<button class="task-action-btn start" onclick="startTask('${task.id}')" disabled>
+              <i class="fas fa-lock"></i>
+              مقفلة
+            </button>`;
+          }
         }
+        
+        // تنسيق عرض المكافأة بمنزلتين عشريتين
+        const rewardDisplay = task.reward % 1 === 0 ? task.reward : task.reward.toFixed(2);
         
         taskElement.innerHTML = `
           <div class="task-header">
             <div class="task-title">${task.title}</div>
             <div class="task-reward">
               <i class="fas fa-coins"></i>
-              ${task.reward} ${task.rewardCurrency}
+              ${rewardDisplay} ${task.rewardCurrency}
             </div>
           </div>
           
@@ -806,6 +864,12 @@
         
         if (!task) {
           showToast('لم يتم العثور على المهمة', 'error');
+          return;
+        }
+        
+        // منع بدء مهمة إكمال 5 مهام يومية يدوياً
+        if (task.id === 'complete_5_daily') {
+          showToast('لا يمكن بدء هذه المهمة يدوياً، سيتم إكمالها تلقائياً عند إنجاز 5 مهام يومية', 'warning');
           return;
         }
         
@@ -870,7 +934,7 @@
         renderTaskList(userTasks.dailyTasks, 'dailyTasksList');
         renderTaskList(userTasks.weeklyTasks, 'weeklyTasksList');
         
-        showToast(`مبروك! لقد تمت إضافة ${task.reward} ${task.rewardCurrency} إلى محفظتك`, 'success');
+        showToast(`مبروك! لقد تمت إضافة ${task.reward.toFixed(2)} ${task.rewardCurrency} إلى محفظتك`, 'success');
         
       } catch (error) {
         console.error('❌ خطأ في المطالبة بالمكافأة:', error);
@@ -941,14 +1005,14 @@
         weeklyTasks: JSON.parse(JSON.stringify(weeklyTasksTemplates))
       };
       
+      // محاكاة إكمال مهمة يومية واحدة
       userTasks.dailyTasks[0].status = 'completed';
       userTasks.dailyTasks[0].progress.current = 1;
       
       userTasks.dailyTasks[1].status = 'in-progress';
       userTasks.dailyTasks[1].progress.current = 1;
       
-      userTasks.weeklyTasks[0].status = 'in-progress';
-      userTasks.weeklyTasks[0].progress.current = 3;
+      // المهمة الأسبوعية سيتم تحديث تقدمها تلقائياً عند التصيير
       
       renderTaskList(userTasks.dailyTasks, 'dailyTasksList');
       renderTaskList(userTasks.weeklyTasks, 'weeklyTasksList');
