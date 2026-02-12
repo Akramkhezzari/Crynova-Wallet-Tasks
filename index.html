@@ -64,7 +64,7 @@
     .page-header {
       background: linear-gradient(135deg, var(--accent), var(--primary));
       color: white;
-      padding: 35px 15px 30px;   /* تم زيادة الارتفاع هنا */
+      padding: 35px 15px 30px;
       text-align: center;
       position: relative;
       width: 100%;
@@ -72,7 +72,7 @@
     }
 
     .page-header h1 {
-      font-size: 1.6rem;         /* زيادة طفيفة في حجم الخط لتتناسب مع الارتفاع */
+      font-size: 1.6rem;
       font-weight: 700;
       margin-bottom: 10px;
       margin-top: 0;
@@ -92,7 +92,7 @@
       background: rgba(255, 255, 255, 0.2);
       border: none;
       color: white;
-      width: 40px;              /* زيادة طفيفة لعرض الزر */
+      width: 40px;
       height: 40px;
       border-radius: 50%;
       font-size: 28px;
@@ -255,6 +255,12 @@
       border: 1px solid rgba(38, 161, 123, 0.2);
     }
 
+    .task-status.claimed {
+      background: rgba(108, 117, 125, 0.1);
+      color: var(--text-gray);
+      border: 1px solid rgba(108, 117, 125, 0.2);
+    }
+
     .task-action-btn {
       padding: 8px 15px;
       border-radius: 10px;
@@ -300,67 +306,6 @@
     .task-action-btn:disabled:hover {
       transform: none;
       box-shadow: none;
-    }
-
-    /* ========== شارات الإنجاز ========== */
-    .achievements-section {
-      margin-bottom: 25px;
-    }
-
-    .achievements-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    .achievement-card {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-      border: 1px solid transparent;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .achievement-card:hover {
-      background: #ffffff;
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px var(--shadow-light);
-    }
-
-    .achievement-card.locked {
-      opacity: 0.7;
-    }
-
-    .achievement-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 10px;
-      color: white;
-      font-size: 20px;
-    }
-
-    .achievement-icon.locked {
-      background: linear-gradient(135deg, #adb5bd, #6c757d);
-    }
-
-    .achievement-title {
-      font-weight: 700;
-      font-size: 12px;
-      color: var(--text-dark);
-      margin-bottom: 5px;
-    }
-
-    .achievement-desc {
-      font-size: 10px;
-      color: var(--text-light);
     }
 
     /* ========== التحميل والتوجيهات ========== */
@@ -426,18 +371,13 @@
       }
     }
 
-    /* ========== تجاوبية للشاشات الصغيرة ========== */
     @media (max-width: 480px) {
       .page-header {
-        padding: 30px 15px 25px;  /* تعديل طفيف للهواتف */
+        padding: 30px 15px 25px;
       }
       
       .page-header h1 {
         font-size: 1.5rem;
-      }
-      
-      .achievements-grid {
-        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
@@ -480,30 +420,6 @@
         </div>
       </div>
       
-      <!-- ========== مهام خاصة ========== -->
-      <div class="tasks-section">
-        <div class="section-title">
-          <i class="fas fa-star"></i>
-          مهام خاصة
-        </div>
-        
-        <div class="tasks-list" id="specialTasksList">
-          <!-- سيتم ملؤها ديناميكياً -->
-        </div>
-      </div>
-      
-      <!-- ========== شارات الإنجاز ========== -->
-      <div class="achievements-section">
-        <div class="section-title">
-          <i class="fas fa-trophy"></i>
-          شارات الإنجاز
-        </div>
-        
-        <div class="achievements-grid" id="achievementsGrid">
-          <!-- سيتم ملؤها ديناميكياً -->
-        </div>
-      </div>
-      
     </div>
   </div>
 
@@ -542,12 +458,24 @@
       username: null
     };
 
+    // ========== الأرصدة الافتراضية (مطابقة للمحفظة الرئيسية) ==========
+    const defaultBalances = {
+      'BTC': 0.00,
+      'ETH': 0.00,
+      'USDT': 0.00,
+      'CNC': 0.00,
+      'BNB': 0.00,
+      'XRP': 0.00,
+      'ADA': 0.00,
+      'SOL': 0.00,
+      'DOT': 0.00,
+      'DOGE': 0.00
+    };
+
     // ========== بيانات المهام ==========
     let userTasks = {
       dailyTasks: [],
-      weeklyTasks: [],
-      specialTasks: [],
-      achievements: []
+      weeklyTasks: []
     };
 
     // ========== قوالب المهام ==========
@@ -559,20 +487,20 @@
         reward: 10,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 1 },
-        status: 'pending', // pending, in-progress, completed
+        status: 'pending',
         action: 'login',
         icon: 'fas fa-sign-in-alt'
       },
       {
-        id: 'check_wallet',
-        title: 'فحص المحفظة',
-        description: 'افتح صفحة المحفظة الرئيسية',
+        id: 'interact_channel',
+        title: 'تفاعل مع اخر منشور في القناة',
+        description: 'تفاعل مع آخر منشور في قناة Crynova الرسمية على Telegram',
         reward: 5,
         rewardCurrency: 'CNC',
         progress: { current: 0, target: 1 },
         status: 'pending',
-        action: 'check_wallet',
-        icon: 'fas fa-wallet'
+        action: 'interact_channel',
+        icon: 'fas fa-bullhorn'
       },
       {
         id: 'join_channel',
@@ -622,111 +550,15 @@
         icon: 'fas fa-user-friends'
       },
       {
-        id: 'trade_100_usdt',
-        title: 'تداول بقيمة 100 USDT',
-        description: 'قم بعمليات تداول بقيمة إجمالية 100 USDT',
+        id: 'invite_7_friends',        // تم تغيير المهمة من تداول بقيمة 100 USDT إلى دعوة 7 أصدقاء
+        title: 'دعوة 7 أصدقاء',
+        description: 'دعوة 7 أصدقاء للانضمام إلى Crynova',
         reward: 75,
         rewardCurrency: 'CNC',
-        progress: { current: 0, target: 100 },
+        progress: { current: 0, target: 7 },
         status: 'pending',
-        action: 'trade_volume',
-        icon: 'fas fa-chart-line'
-      }
-    ];
-
-    const specialTasksTemplates = [
-      {
-        id: 'first_deposit',
-        title: 'أول إيداع',
-        description: 'قم بأول إيداع في محفظتك',
-        reward: 150,
-        rewardCurrency: 'CNC',
-        progress: { current: 0, target: 1 },
-        status: 'pending',
-        action: 'first_deposit',
-        icon: 'fas fa-coins',
-        oneTime: true
-      },
-      {
-        id: 'first_trade',
-        title: 'أول عملية تداول',
-        description: 'قم بأول عملية تداول في المنصة',
-        reward: 100,
-        rewardCurrency: 'CNC',
-        progress: { current: 0, target: 1 },
-        status: 'pending',
-        action: 'first_trade',
-        icon: 'fas fa-exchange-alt',
-        oneTime: true
-      },
-      {
-        id: 'verify_account',
-        title: 'تحقق من الحساب',
-        description: 'أكمل عملية التحقق من الحساب',
-        reward: 200,
-        rewardCurrency: 'CNC',
-        progress: { current: 0, target: 1 },
-        status: 'pending',
-        action: 'verify_account',
-        icon: 'fas fa-user-check',
-        oneTime: true
-      }
-    ];
-
-    const achievementsTemplates = [
-      {
-        id: 'first_steps',
-        title: 'الخطوات الأولى',
-        description: 'أكمل أول مهمة',
-        reward: 50,
-        rewardCurrency: 'CNC',
-        icon: 'fas fa-walking',
-        status: 'locked' // locked, unlocked, claimed
-      },
-      {
-        id: 'task_master',
-        title: 'سيد المهام',
-        description: 'أكمل 10 مهام',
-        reward: 100,
-        rewardCurrency: 'CNC',
-        icon: 'fas fa-tasks',
-        status: 'locked'
-      },
-      {
-        id: 'daily_king',
-        title: 'ملك التسجيل',
-        description: 'سجل دخول 7 أيام متتالية',
-        reward: 200,
-        rewardCurrency: 'CNC',
-        icon: 'fas fa-crown',
-        status: 'locked'
-      },
-      {
-        id: 'trader_novice',
-        title: 'متداول مبتدئ',
-        description: 'قم بـ 5 عمليات تداول',
-        reward: 150,
-        rewardCurrency: 'CNC',
-        icon: 'fas fa-chart-bar',
-        status: 'locked'
-      },
-      {
-        id: 'social_butterfly',
-        title: 'فراشة اجتماعية',
-        description: 'دع 5 أصدقاء',
-        reward: 250,
-        rewardCurrency: 'CNC',
-        icon: 'fas fa-users',
-        status: 'locked'
-      },
-      {
-        id: 'early_adopter',
-        title: 'مبكر في التبني',
-        description: 'انضم خلال الشهر الأول',
-        reward: 500,
-        rewardCurrency: 'CNC',
-        icon: 'fas fa-rocket',
-        status: 'locked'
+        action: 'invite_7_friends',
+        icon: 'fas fa-user-friends'
       }
     ];
 
@@ -771,9 +603,7 @@
         if (!db) {
           userTasks = {
             dailyTasks: JSON.parse(JSON.stringify(dailyTasksTemplates)),
-            weeklyTasks: JSON.parse(JSON.stringify(weeklyTasksTemplates)),
-            specialTasks: JSON.parse(JSON.stringify(specialTasksTemplates)),
-            achievements: JSON.parse(JSON.stringify(achievementsTemplates))
+            weeklyTasks: JSON.parse(JSON.stringify(weeklyTasksTemplates))
           };
           return userTasks;
         }
@@ -786,8 +616,6 @@
             userId: userId.toString(),
             dailyTasks: JSON.parse(JSON.stringify(dailyTasksTemplates)),
             weeklyTasks: JSON.parse(JSON.stringify(weeklyTasksTemplates)),
-            specialTasks: JSON.parse(JSON.stringify(specialTasksTemplates)),
-            achievements: JSON.parse(JSON.stringify(achievementsTemplates)),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           };
           
@@ -797,7 +625,6 @@
         } else {
           const tasksData = tasksDoc.data();
           userTasks = tasksData;
-          
           return tasksData;
         }
       } catch (error) {
@@ -824,6 +651,46 @@
         console.error('❌ خطأ في تحديث بيانات المهام:', error);
         showToast('حدث خطأ في حفظ بيانات المهام', 'error');
         return false;
+      }
+    }
+
+    // ========== دالة إضافة المكافأة إلى محفظة المستخدم (CNC) ==========
+    async function addRewardToWallet(userId, amount, currency = 'CNC') {
+      if (!db) {
+        console.log(`⚠️ Firebase غير متصل، محاكاة إضافة ${amount} CNC`);
+        showToast(`محاكاة: تمت إضافة ${amount} CNC إلى محفظتك`, 'success');
+        return true;
+      }
+
+      try {
+        const walletRef = db.collection('wallets').doc(userId.toString());
+        
+        await db.runTransaction(async (transaction) => {
+          const walletDoc = await transaction.get(walletRef);
+          
+          if (!walletDoc.exists) {
+            transaction.set(walletRef, {
+              userId: userId.toString(),
+              balances: {
+                ...defaultBalances,
+                CNC: amount
+              },
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          } else {
+            transaction.update(walletRef, {
+              'balances.CNC': firebase.firestore.FieldValue.increment(amount),
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+        });
+        
+        console.log(`✅ تم إضافة ${amount} CNC إلى محفظة المستخدم ${userId}`);
+        return true;
+      } catch (error) {
+        console.error('❌ خطأ في إضافة المكافأة إلى المحفظة:', error);
+        throw error;
       }
     }
 
@@ -864,6 +731,9 @@
           case 'completed':
             statusText = 'مكتمل';
             break;
+          case 'claimed':
+            statusText = 'تم المطالبة';
+            break;
         }
         
         if (task.status === 'completed') {
@@ -875,6 +745,11 @@
           actionButton = `<button class="task-action-btn start" onclick="startTask('${task.id}')">
             <i class="fas fa-play"></i>
             بدء المهمة
+          </button>`;
+        } else if (task.status === 'claimed') {
+          actionButton = `<button class="task-action-btn" disabled>
+            <i class="fas fa-check-circle"></i>
+            مطالب به
           </button>`;
         } else {
           actionButton = `<button class="task-action-btn start" onclick="startTask('${task.id}')" disabled>
@@ -913,52 +788,20 @@
       });
     }
 
-    function renderAchievements() {
-      const container = document.getElementById('achievementsGrid');
-      if (!container) return;
-      
-      container.innerHTML = '';
-      
-      userTasks.achievements.forEach(achievement => {
-        const achievementElement = document.createElement('div');
-        achievementElement.className = `achievement-card ${achievement.status === 'locked' ? 'locked' : ''}`;
-        achievementElement.setAttribute('data-achievement-id', achievement.id);
-        
-        achievementElement.innerHTML = `
-          <div class="achievement-icon ${achievement.status === 'locked' ? 'locked' : ''}">
-            <i class="${achievement.icon}"></i>
-          </div>
-          <div class="achievement-title">${achievement.title}</div>
-          <div class="achievement-desc">${achievement.description}</div>
-        `;
-        
-        container.appendChild(achievementElement);
-      });
-    }
-
     // ========== دوال إدارة المهام ==========
     async function startTask(taskId) {
       showLoading(true);
       
       try {
-        // البحث عن المهمة في جميع القوائم
         let task = null;
         let taskType = '';
         
-        // البحث في المهام اليومية
         task = userTasks.dailyTasks.find(t => t.id === taskId);
         if (task) taskType = 'daily';
         
-        // البحث في المهام الأسبوعية
         if (!task) {
           task = userTasks.weeklyTasks.find(t => t.id === taskId);
           if (task) taskType = 'weekly';
-        }
-        
-        // البحث في المهام الخاصة
-        if (!task) {
-          task = userTasks.specialTasks.find(t => t.id === taskId);
-          if (task) taskType = 'special';
         }
         
         if (!task) {
@@ -966,22 +809,17 @@
           return;
         }
         
-        // إذا كانت المهمة مكتملة بالفعل
-        if (task.status === 'completed') {
+        if (task.status === 'completed' || task.status === 'claimed') {
           showToast('هذه المهمة مكتملة بالفعل', 'warning');
           return;
         }
         
-        // تغيير حالة المهمة إلى قيد التنفيذ
         task.status = 'in-progress';
         
-        // حفظ التغييرات في قاعدة البيانات
         await updateUserTasksInFirestore(currentUser.id, userTasks);
         
-        // إعادة عرض القوائم
         renderTaskList(userTasks.dailyTasks, 'dailyTasksList');
         renderTaskList(userTasks.weeklyTasks, 'weeklyTasksList');
-        renderTaskList(userTasks.specialTasks, 'specialTasksList');
         
         showToast('تم بدء المهمة بنجاح!', 'success');
         
@@ -997,49 +835,42 @@
       showLoading(true);
       
       try {
-        // البحث عن المهمة في جميع القوائم
         let task = null;
         let taskType = '';
         
-        // البحث في المهام اليومية
         task = userTasks.dailyTasks.find(t => t.id === taskId);
         if (task) taskType = 'daily';
         
-        // البحث في المهام الأسبوعية
         if (!task) {
           task = userTasks.weeklyTasks.find(t => t.id === taskId);
           if (task) taskType = 'weekly';
-        }
-        
-        // البحث في المهام الخاصة
-        if (!task) {
-          task = userTasks.specialTasks.find(t => t.id === taskId);
-          if (task) taskType = 'special';
         }
         
         if (!task) {
           showToast('لم يتم العثور على المهمة', 'error');
           return;
         }
-        
-        // إذا كانت المهمة غير مكتملة
+
         if (task.status !== 'completed') {
           showToast('هذه المهمة غير مكتملة بعد', 'warning');
           return;
         }
+
+        if (task.status === 'claimed') {
+          showToast('تم المطالبة بهذه المكافأة مسبقاً', 'warning');
+          return;
+        }
         
-        // تحديث حالة المهمة إلى تم المطالبة (يمكن إزالتها من القائمة)
+        await addRewardToWallet(currentUser.id, task.reward, task.rewardCurrency);
+        
         task.status = 'claimed';
         
-        // حفظ التغييرات في قاعدة البيانات
         await updateUserTasksInFirestore(currentUser.id, userTasks);
         
-        // إعادة عرض القوائم
         renderTaskList(userTasks.dailyTasks, 'dailyTasksList');
         renderTaskList(userTasks.weeklyTasks, 'weeklyTasksList');
-        renderTaskList(userTasks.specialTasks, 'specialTasksList');
         
-        showToast(`مبروك! لقد حصلت على ${task.reward} ${task.rewardCurrency}`, 'success');
+        showToast(`مبروك! لقد تمت إضافة ${task.reward} ${task.rewardCurrency} إلى محفظتك`, 'success');
         
       } catch (error) {
         console.error('❌ خطأ في المطالبة بالمكافأة:', error);
@@ -1070,20 +901,15 @@
               username: user.username || null
             };
             
-            // تحديث اسم المستخدم في الصفحة إذا كان هناك عنصر لذلك
             const userNameElement = document.getElementById('userName');
             if (userNameElement) {
               userNameElement.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
             }
             
-            // تهيئة بيانات المهام للمستخدم
             await initializeUserTasks(user.id);
             
-            // تحديث واجهة المستخدم
             renderTaskList(userTasks.dailyTasks, 'dailyTasksList');
             renderTaskList(userTasks.weeklyTasks, 'weeklyTasksList');
-            renderTaskList(userTasks.specialTasks, 'specialTasksList');
-            renderAchievements();
             
           } else {
             console.log('❌ لم يتم العثور على بيانات المستخدم في Telegram');
@@ -1110,15 +936,11 @@
       
       currentUser = mockUser;
       
-      // استخدام بيانات وهمية للمهام
       userTasks = {
         dailyTasks: JSON.parse(JSON.stringify(dailyTasksTemplates)),
-        weeklyTasks: JSON.parse(JSON.stringify(weeklyTasksTemplates)),
-        specialTasks: JSON.parse(JSON.stringify(specialTasksTemplates)),
-        achievements: JSON.parse(JSON.stringify(achievementsTemplates))
+        weeklyTasks: JSON.parse(JSON.stringify(weeklyTasksTemplates))
       };
       
-      // تحديث بعض المهام لتبدو وكأنها مكتملة أو قيد التنفيذ
       userTasks.dailyTasks[0].status = 'completed';
       userTasks.dailyTasks[0].progress.current = 1;
       
@@ -1128,24 +950,16 @@
       userTasks.weeklyTasks[0].status = 'in-progress';
       userTasks.weeklyTasks[0].progress.current = 3;
       
-      userTasks.achievements[0].status = 'unlocked';
-      userTasks.achievements[1].status = 'unlocked';
-      
-      // تحديث واجهة المستخدم
       renderTaskList(userTasks.dailyTasks, 'dailyTasksList');
       renderTaskList(userTasks.weeklyTasks, 'weeklyTasksList');
-      renderTaskList(userTasks.specialTasks, 'specialTasksList');
-      renderAchievements();
     }
 
     // ========== تهيئة الصفحة عند التحميل ==========
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 جاري تحميل صفحة المهام...');
       
-      // تهيئة Telegram WebApp
       initializeTelegramWebApp();
       
-      // تحميل الصفحة بعد 2 ثانية للتأكد من تهيئة البيانات
       setTimeout(() => {
         showLoading(false);
       }, 2000);
